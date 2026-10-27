@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
  
 function Order() {
-  const [quantities, setQuantities] = useState({ fresh: 1, spiced: 1, fried: 1 })
+  const [quantities, setQuantities] = useState({ fresh: "", spiced: "", fried: "" })
   const [orderPlaced, setOrderPlaced] = useState(false)
 
   const products = [
@@ -34,21 +34,30 @@ function Order() {
     },
   ];
 
+  const quantityFor = (id) => Number(quantities[id]) || 0
   const total = products.reduce(
-    (sum, product) => sum + product.price * quantities[product.id],
+    (sum, product) => sum + product.price * quantityFor(product.id),
     0,
   )
   const whatsappMessage = encodeURIComponent(
     `Hello, I have placed an order and would like to confirm my payment:\n${products
-      .filter((product) => quantities[product.id] > 0)
-      .map((product) => `${product.name} x ${quantities[product.id]}`)
+      .filter((product) => quantityFor(product.id) > 0)
+      .map((product) => `${product.name} x ${quantityFor(product.id)}`)
       .join('\n')}\nOrder total: ₦${total.toLocaleString()}`,
   )
 
   const updateQuantity = (id, value) => {
     setQuantities((current) => ({
       ...current,
-      [id]: Math.max(0, Number(value) || 0),
+      [id]: value,
+    }))
+    setOrderPlaced(false)
+  }
+
+  const addOne = (id) => {
+    setQuantities((current) => ({
+      ...current,
+      [id]: String(quantityFor(id) + 1),
     }))
     setOrderPlaced(false)
   }
@@ -92,15 +101,27 @@ function Order() {
               <label className="mt-5 block text-sm font-semibold" htmlFor={`${product.id}-quantity`}>
                 Quantity
               </label>
-              <input
-                id={`${product.id}-quantity`}
-                type="number"
-                min="0"
-                step="1"
-                value={quantities[product.id]}
-                onChange={(event) => updateQuantity(product.id, event.target.value)}
-                className="mt-2 w-full rounded-lg border border-stone-300 px-4 py-3 outline-none transition focus:border-orange-600 focus:ring-2 focus:ring-orange-200"
-              />
+              <div className="mt-2 flex w-full min-w-0 gap-2">
+                <input
+                  id={`${product.id}-quantity`}
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={quantities[product.id]}
+                  onChange={(event) => updateQuantity(product.id, event.target.value)}
+                  className="min-w-0 flex-1 rounded-lg border border-stone-300 px-4 py-3 outline-none transition focus:border-orange-600 focus:ring-2 focus:ring-orange-200"
+                />
+                <button
+                  type="button"
+                  onClick={() => addOne(product.id)}
+                  aria-label={`Add one ${product.name}`}
+                  className="flex shrink-0 items-center justify-center rounded-lg bg-orange-600 px-4 text-white transition hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-300"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+                  </svg>
+                </button>
+              </div>
             </article>
           ))}
         </div>
