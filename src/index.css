@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+.app {
+  display: flex;
+  flex-direction: column;
+  /* border: 1px solid #961717; */
+
+  min-height: 100vh;
+}
+
+.routes {
+  flex: 1;
+}
+
+.hero-banner-image {
+  animation: banner-pan 24s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes banner-pan {
+  from {
+    transform: scale(1.02) translateX(0);
+  }
+
+  to {
+    transform: scale(1.14) translateX(-2%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-banner-image {
+    animation: none;
+  }
+}
